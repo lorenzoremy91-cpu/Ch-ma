@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulateur d'Impact - Subventions Vertes</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #f8fafc;
+            color: #1e293b;
+        }
+
+        .slider-thumb::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 24px;
+            height: 24px;
+            background: #16a34a;
+            cursor: pointer;
+            border-radius: 50%;
+            border: 4px solid white;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+        }
+
+        .card {
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .metric-bar {
+            transition: width 0.6s ease-out;
+        }
+
+        .glow-green {
+            box-shadow: 0 0 20px rgba(22, 163, 74, 0.2);
+        }
+    </style>
+</head>
+<body class="p-4 md:p-8 min-h-screen flex flex-col items-center">
+
+    <div class="max-w-4xl w-full bg-white rounded-[2rem] shadow-2xl overflow-hidden border border-slate-100">
+        <!-- Header -->
+        <div class="bg-green-600 p-8 text-white text-center">
+            <h1 class="text-3xl font-extrabold mb-2">Simulateur de Politique Verte</h1>
+            <p class="text-green-100 opacity-90">Ajustez le niveau de subvention pour observer l'effet de levier sur l'économie.</p>
+        </div>
+
+        <!-- Controller Section -->
+        <div class="p-8 border-b border-slate-100 bg-slate-50/50">
+            <div class="flex flex-col items-center">
+                <label for="subsidy-slider" class="text-sm font-bold text-slate-500 uppercase tracking-widest mb-4">Niveau d'investissement public</label>
+                <div class="flex items-center w-full gap-6">
+                    <span class="text-slate-400 font-bold">0%</span>
+                    <input type="range" id="subsidy-slider" min="0" max="100" value="20" 
+                           class="slider-thumb w-full h-3 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-green-600">
+                    <span class="text-green-600 font-bold">100%</span>
+                </div>
+                <div id="subsidy-label" class="mt-4 text-4xl font-black text-green-600">20%</div>
+            </div>
+        </div>
+
+        <!-- Results Grid -->
+        <div class="p-8 grid grid-cols-1 md:grid-cols-2 gap-6">
+            
+            <!-- R&D Card -->
+            <div class="card p-6 rounded-2xl bg-white border border-slate-100 shadow-sm">
+                <div class="flex justify-between items-start mb-4">
+                    <div class="p-3 bg-blue-50 rounded-lg text-blue-600">🔬</div>
+                    <div id="rd-status" class="text-xs font-bold px-2 py-1 rounded bg-slate-100 text-slate-500 uppercase">Faible</div>
+                </div>
+                <h3 class="font-bold text-slate-800 mb-1">Recherche & Innovation</h3>
+                <p class="text-sm text-slate-500 mb-4 h-10" id="rd-desc">Investissement minimal en nouvelles technologies.</p>
+                <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+                    <div id="rd-bar" class="metric-bar h-full bg-blue-500" style="width: 20%"></div>
+                </div>
+            </div>
+
+            <!-- Costs Card -->
+            <div class="card p-6 rounded-2xl bg-white border border-slate-100 shadow-sm">
+                <div class="flex justify-between items-start mb-4">
+                    <div class="p-3 bg-amber-50 rounded-lg text-amber-600">🏭</div>
+                    <div id="costs-status" class="text-xs font-bold px-2 py-1 rounded bg-slate-100 text-slate-500 uppercase">Élevé</div>
+                </div>
+                <h3 class="font-bold text-slate-800 mb-1">Coût de Production</h3>
+                <p class="text-sm text-slate-500 mb-4 h-10" id="costs-desc">Production artisanale à coût unitaire élevé.</p>
+                <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+                    <div id="costs-bar" class="metric-bar h-full bg-amber-500" style="width: 80%"></div>
+                </div>
+            </div>
+
+            <!-- Price Card -->
+            <div class="card p-6 rounded-2xl bg-white border border-slate-100 shadow-sm">
+                <div class="flex justify-between items-start mb-4">
+                    <div class="p-3 bg-emerald-50 rounded-lg text-emerald-600">🏷️</div>
+                    <div id="price-status" class="text-xs font-bold px-2 py-1 rounded bg-slate-100 text-slate-500 uppercase">Cher</div>
+                </div>
+                <h3 class="font-bold text-slate-800 mb-1">Prix Consommateur</h3>
+                <p class="text-sm text-slate-500 mb-4 h-10" id="price-desc">Produit de niche réservé aux hauts revenus.</p>
+                <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+                    <div id="price-bar" class="metric-bar h-full bg-emerald-500" style="width: 90%"></div>
+                </div>
+            </div>
+
+            <!-- Adoption Card -->
+            <div class="card p-6 rounded-2xl bg-white border border-slate-100 shadow-sm">
+                <div class="flex justify-between items-start mb-4">
+                    <div class="p-3 bg-green-50 rounded-lg text-green-600">🌍</div>
+                    <div id="adoption-status" class="text-xs font-bold px-2 py-1 rounded bg-slate-100 text-slate-500 uppercase">Limitée</div>
+                </div>
+                <h3 class="font-bold text-slate-800 mb-1">Adoption & Impact Climat</h3>
+                <p class="text-sm text-slate-500 mb-4 h-10" id="adoption-desc">Impact négligeable sur les émissions nationales.</p>
+                <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+                    <div id="adoption-bar" class="metric-bar h-full bg-green-500" style="width: 5%"></div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Synthesis Box -->
+        <div id="synthesis" class="m-8 p-6 rounded-2xl bg-green-50 border border-green-100 text-green-900 italic text-center">
+            "Bougez le curseur pour voir comment les subventions déclenchent un cercle vertueux."
+        </div>
+    </div>
+
+    <script>
+        const slider = document.getElementById('subsidy-slider');
+        const labels = {
+            subsidy: document.getElementById('subsidy-label'),
+            rdStatus: document.getElementById('rd-status'),
+            rdDesc: document.getElementById('rd-desc'),
+            costsStatus: document.getElementById('costs-status'),
+            costsDesc: document.getElementById('costs-desc'),
+            priceStatus: document.getElementById('price-status'),
+            priceDesc: document.getElementById('price-desc'),
+            adoptionStatus: document.getElementById('adoption-status'),
+            adoptionDesc: document.getElementById('adoption-desc'),
+            synthesis: document.getElementById('synthesis')
+        };
+
+        const bars = {
+            rd: document.getElementById('rd-bar'),
+            costs: document.getElementById('costs-bar'),
+            price: document.getElementById('price-bar'),
+            adoption: document.getElementById('adoption-bar')
+        };
+
+        function updateSimulation(val) {
+            const v = parseInt(val);
+            labels.subsidy.innerText = v + "%";
+
+            // 1. R&D - Augmente avec les subventions
+            const rdVal = Math.min(100, v * 1.2);
+            bars.rd.style.width = rdVal + "%";
+            if(v < 30) {
+                labels.rdStatus.innerText = "Faible";
+                labels.rdDesc.innerText = "Recherche limitée aux laboratoires publics.";
+            } else if(v < 70) {
+                labels.rdStatus.innerText = "Active";
+                labels.rdDesc.innerText = "Nombreux brevets déposés par le secteur privé.";
+            } else {
+                labels.rdStatus.innerText = "Disruptive";
+                labels.rdDesc.innerText = "Sauts technologiques majeurs (batteries solid-state).";
+            }
+
+            // 2. Coûts - Baissent quand les subventions sont moyennes à hautes (économies d'échelle)
+            const costsVal = Math.max(15, 100 - (v * 0.85));
+            bars.costs.style.width = costsVal + "%";
+            if(v < 30) {
+                labels.costsStatus.innerText = "Élevé";
+                labels.costsDesc.innerText = "Composants rares et assemblage manuel.";
+            } else if(v < 70) {
+                labels.costsStatus.innerText = "En baisse";
+                labels.costsDesc.innerText = "Premières lignes de production automatisées.";
+            } else {
+                labels.costsStatus.innerText = "Optimisé";
+                labels.costsDesc.innerText = "Giga-factories et chaînes d'approvisionnement matures.";
+            }
+
+            // 3. Prix - Suit les coûts avec un léger décalage
+            const priceVal = Math.max(10, 95 - (v * 0.9));
+            bars.price.style.width = priceVal + "%";
+            if(v < 40) {
+                labels.priceStatus.innerText = "Luxe / Niche";
+                labels.priceDesc.innerText = "Inaccessible pour le ménage moyen.";
+            } else if(v < 80) {
+                labels.priceStatus.innerText = "Compétitif";
+                labels.priceDesc.innerText = "Prix équivalent aux alternatives fossiles.";
+            } else {
+                labels.priceStatus.innerText = "Moins cher";
+                labels.priceDesc.innerText = "L'option verte est l'option la plus économique.";
+            }
+
+            // 4. Adoption - Explose quand les prix sont bas
+            const adoptionVal = v < 20 ? v/2 : Math.min(100, Math.pow(v/10, 2));
+            bars.adoption.style.width = adoptionVal + "%";
+            if(v < 30) {
+                labels.adoptionStatus.innerText = "Anecdotique";
+                labels.adoptionDesc.innerText = "Moins de 1% du parc installé.";
+            } else if(v < 75) {
+                labels.adoptionStatus.innerText = "Transition";
+                labels.adoptionDesc.innerText = "Adoption rapide par les classes moyennes.";
+            } else {
+                labels.adoptionStatus.innerText = "Standard";
+                labels.adoptionDesc.innerText = "Remplacement total des anciennes technologies.";
+            }
+
+            // Synthèse dynamique
+            if(v === 0) labels.synthesis.innerText = "Stagnation : Sans aide, la technologie verte reste trop chère face au pétrole.";
+            else if(v < 40) labels.synthesis.innerText = "Phase d'amorçage : L'argent public finance les premiers pas et le risque.";
+            else if(v < 80) labels.synthesis.innerText = "Point de bascule : Les économies d'échelle rendent la subvention de moins en moins nécessaire.";
+            else labels.synthesis.innerText = "Victoire climatique : La technologie est autonome et domine le marché mondial.";
+        }
+
+        slider.addEventListener('input', (e) => updateSimulation(e.target.value));
+        
+        // Init
+        updateSimulation(20);
+    </script>
+</body>
+</html>
